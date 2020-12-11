@@ -3,8 +3,6 @@ use std::io::{self, BufRead};
 use std::path::Path;
 
 fn main() {
-    let mut max_id = 0;
-
     let mut flight = [[0u8; 8]; 128];
 
     if let Ok(lines) = read_lines("input.txt") {
@@ -43,8 +41,6 @@ fn main() {
         }
         println!("");
     }
-
-    println!("max id = {}", max_id);
 }
 
 fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
