@@ -82,7 +82,6 @@ fn main() {
     let mut classes: HashMap<String, Vec<Pair>> = HashMap::new();
     let mut my_ticket: Vec<HashSet<String>> = Vec::new();
     let mut my_ticket_vals: Vec<u16> = Vec::new();
-    let mut tickets: Vec<Vec<HashSet<String>>> = Vec::new();
 
     if let Ok(lines) = read_lines("input.txt") {
         let mut section = 0;
