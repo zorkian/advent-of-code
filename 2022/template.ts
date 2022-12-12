@@ -13,27 +13,37 @@ const filename = "inputs/day11." + (options.Sample ? "sample" : "input");
 
 const lines = fs.readFileSync(filename, "utf8").split(/\r?\n/);
 
-console.log(options.P1 ? part1(lines) : part2(lines));
+// PARSING LIZARDS HERE
 
-// DRAGONS HERE
+class Whatever {}
 
-function part1(lines: Array<string>): number {
+function parse(lines: Array<string>): Whatever {
   lines.forEach((line) => {
     if (!line) return;
 
     //
     console.log(line);
   });
+
+  return new Whatever();
+}
+
+// DRAGONS HERE
+
+function part1(lines: Array<string>): number {
+  var input = parse(lines);
+
   return 0;
 }
 
 // HARDCORE DRAGONS HERE
 
 function part2(lines: Array<string>): number {
-  lines.forEach((line) => {
-    if (!line) return;
+  var input = parse(lines);
 
-    //
-  });
   return 1;
 }
+
+// DO IT
+
+console.log(options.P1 ? part1(lines) : part2(lines));
