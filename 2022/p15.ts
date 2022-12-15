@@ -115,10 +115,10 @@ function parse(lines: Array<string>): Whatever {
 
 // DRAGONS HERE
 
-function part1(lines: Array<string>): number {
+function part1(lines: Array<string>, sample: boolean): number {
   var input = parse(lines);
 
-  const y = 2000000;
+  const y = sample ? 10 : 2000000;
   var score = 0;
   var str = "";
   for (var x = input.minx - input.maxd; x < input.maxx + input.maxd; x++) {
@@ -150,7 +150,7 @@ function part1(lines: Array<string>): number {
 
 // HARDCORE DRAGONS HERE
 
-function part2(lines: Array<string>): number {
+function part2(lines: Array<string>, sample: boolean): number {
   var input = parse(lines);
 
   // This is kind of weird, but my thinking is that we start at (0,0) and we
@@ -158,13 +158,13 @@ function part2(lines: Array<string>): number {
   // removing chunks from the line... this should reduce it to 4,000,000 line
   // chunks (100 operations?) which might be fast enough? might still take
   // a few minutes...
-  for (var y = 0; y <= 4000000; y++) {
+  for (var y = 0; y <= (sample ? 20 : 4000000); y++) {
     var x = 0,
       lastx = 0;
     if (y % 1000 == 0) {
       // console.log("starting row", y);
     }
-    while (x <= 4000000) {
+    while (x <= (sample ? 20 : 4000000)) {
       lastx = x;
       input.sensors.every((sensor) => {
         var line = sensor.line(y);
@@ -181,8 +181,12 @@ function part2(lines: Array<string>): number {
       }
     }
   }
+
+  throw "oopsie";
 }
 
 // DO IT
 
-console.log(options.P1 ? part1(lines) : part2(lines));
+console.log(
+  options.P1 ? part1(lines, options.Sample) : part2(lines, options.Sample)
+);
