@@ -9,27 +9,33 @@ program.option("-p1").option("-p2").option("-sample");
 program.parse();
 
 const options = program.opts();
-const filename = "inputs/day11." + (options.Sample ? "sample" : "input");
+const filename = "inputs/day17." + (options.Sample ? "sample" : "input");
 
 const lines = fs.readFileSync(filename, "utf8").split(/\r?\n/);
 
-const DEBUG = true;
-function dbg(...args: any) {
-  if (DEBUG) {
-    console.log(...args);
-  }
-}
-
 // PARSING LIZARDS HERE
 
-class Whatever {}
+const shapes = class Whatever {
+  tiles: Array<number> = new Array(7).fill(0);
+  moves: Array<number> = new Array();
+
+  highest(): number {
+    return Math.max(this.tiles);
+  }
+};
 
 function parse(lines: Array<string>): Whatever {
+  var res = new Whatever();
   lines.forEach((line) => {
     if (!line) return;
 
-    //
-    console.log(line);
+    line.split("").forEach((char) => {
+      if (char == "<") {
+        res.moves.push(-1);
+      } else {
+        res.moves.push(1);
+      }
+    });
   });
 
   return new Whatever();
