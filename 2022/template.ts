@@ -5,7 +5,7 @@ import * as fs from "fs";
 
 const { program } = require("commander");
 
-program.option("-p1").option("-p2").option("-sample");
+program.option("-p1").option("-p2").option("-sample").option("-debug");
 program.parse();
 
 const options = program.opts();
@@ -13,7 +13,7 @@ const filename = "inputs/day11." + (options.Sample ? "sample" : "input");
 
 const lines = fs.readFileSync(filename, "utf8").split(/\r?\n/);
 
-const DEBUG = true;
+const DEBUG = options.Debug;
 function dbg(...args: any) {
   if (DEBUG) {
     console.log(...args);
@@ -29,7 +29,7 @@ function parse(lines: Array<string>): Whatever {
     if (!line) return;
 
     //
-    console.log(line);
+    dbg(line);
   });
 
   return new Whatever();
