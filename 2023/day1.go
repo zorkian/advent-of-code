@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -11,10 +12,21 @@ import (
 )
 
 func main() {
-	part2()
+	p1 := flag.Bool("p1", false, "Run part1")
+	p2 := flag.Bool("p2", false, "Run part2")
+	test := flag.Bool("test", false, "Use test data")
+	flag.Parse()
+
+	if *p1 {
+		part1(*test)
+	} else if *p2 {
+		part2(*test)
+	} else {
+		fmt.Println("Use -p1 or -p2")
+	}
 }
 
-func part1() {
+func part1(test bool) {
 	file, err := os.Open("inputs/day1.input")
 	if err != nil {
 		log.Fatal(err)
@@ -40,6 +52,48 @@ func part1() {
 		}
 		if last == -1 {
 			last = first
+		}
+
+		final, err := strconv.ParseInt(fmt.Sprintf("%d%d", first, last), 10, 32)
+		if err != nil {
+			panic(err)
+		}
+
+		rv += final
+	}
+	fmt.Println(rv)
+
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func part2(test bool) {
+	refirst := regexp.MustCompile("^.*?([0-9]|one|two|three|four|five|six|seven|eight|nine)")
+	relast := regexp.MustCompile("^.+([0-9]|one|two|three|four|five|six|seven|eight|nine).*?$")
+
+	file, err := os.Open("inputs/day1.input")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	rv := int64(0)
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		matches := refirst.FindStringSubmatch(line)
+		if len(matches) == 0 {
+			panic("broken")
+		}
+
+		first := valfrom(matches[1])
+		last := first
+
+		matches = relast.FindStringSubmatch(line)
+		if len(matches) == 2 {
+			last = valfrom(matches[1])
 		}
 
 		final, err := strconv.ParseInt(fmt.Sprintf("%d%d", first, last), 10, 32)
@@ -82,47 +136,5 @@ func valfrom(inp string) int {
 			panic(err)
 		}
 		return int(tv)
-	}
-}
-
-func part2() {
-	refirst := regexp.MustCompile("^.*?([0-9]|one|two|three|four|five|six|seven|eight|nine)")
-	relast := regexp.MustCompile("^.+([0-9]|one|two|three|four|five|six|seven|eight|nine).*?$")
-
-	file, err := os.Open("inputs/day1.input")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-
-	rv := int64(0)
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-
-		matches := refirst.FindStringSubmatch(line)
-		if len(matches) == 0 {
-			panic("broken")
-		}
-
-		first := valfrom(matches[1])
-		last := first
-
-		matches = relast.FindStringSubmatch(line)
-		if len(matches) == 2 {
-			last = valfrom(matches[1])
-		}
-
-		final, err := strconv.ParseInt(fmt.Sprintf("%d%d", first, last), 10, 32)
-		if err != nil {
-			panic(err)
-		}
-
-		rv += final
-	}
-	fmt.Println(rv)
-
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
 	}
 }
