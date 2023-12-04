@@ -38,11 +38,13 @@ def munge_input(inp):
 
 
 def part1(inp):
-    return 0
+    rv = 0
+    return rv
 
 
 def part2(inp):
-    return 0
+    rv = 0
+    return rv
 
 
 if __name__ == "__main__":
