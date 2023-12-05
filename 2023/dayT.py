@@ -1,6 +1,8 @@
 import click
 import sys
 
+from collections import defaultdict
+
 VERBOSE = False
 
 
