@@ -121,8 +121,11 @@ def part2(inp):
                 else:
                     # If nothing remaining, return the ID we have and how big the
                     # final range is to src_end
-                    log("Returning1:", (start, length))
-                    return (start, length)
+                    log(
+                        "Returning1:",
+                        (start + convs[test][(src_start, src_end)], length),
+                    )
+                    return (start + convs[test][(src_start, src_end)], length)
         raise Exception("no pseudo-range found")
 
     # Iterate each seed pair and start slicing the chunks up based on the minimally
