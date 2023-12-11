@@ -168,7 +168,7 @@ def munge_input(inp):
                 rv[y][x] = None
             x += 1
         y += 1
-    size = (x, y)
+    size = Point(x, y)
 
     # log(rv)
     rv[start.y][start.x].beginAdoptions(rv)
@@ -190,57 +190,7 @@ def part1(inp):
     return int((max(pipe.p1.ctr, pipe.p2.ctr) + 1) / 2)
 
 
-def nextLoc(loc, size):
-    # calculate next valid location
-    x = loc.x + 1
-    if x < size.x:
-        return (x, loc.y)
-    x = 0
-    y = loc.y + 1
-    if y < size.y:
-        return Point(x, y)
-    return None
-
-
-def inOrOut(loc, size, pipes):
-    # cast two lines, horizontal and vertical, divide the counts
-    # based on "before" and "after" the location
-    counts = []
-
-    ctr = 0
-    for y in range(size.y):
-        if pipes[y][loc.x] and pipes[y][loc.x].valid():
-            ctr += 1
-        elif y == loc.y:
-            counts.append(ctr)
-            ctr = 0
-    counts.append(ctr)
-    ctr = 0
-
-    hitWallV = True if counts[0] == 0 or counts[1] == 0 else False
-    wasOddV = True if counts[0] % 2 == 1 and counts[1] % 2 == 1 else False
-
-    counts = []
-    for x in range(size.x):
-        if pipes[loc.y][x] and pipes[loc.y][x].valid():
-            ctr += 1
-        elif x == loc.x:
-            counts.append(ctr)
-            ctr = 0
-    counts.append(ctr)
-
-    hitWallH = True if counts[0] == 0 or counts[1] == 0 else False
-    wasOddH = True if counts[0] % 2 == 1 and counts[1] % 2 == 1 else False
-
-    # if we hit a wall, we're not inside
-    if hitWallH or hitWallV:
-        return False
-
-    # if we had odd pairs, we're inside
-    return wasOddV or wasOddH
-
-
-def coordsFromLoc(loc):
+def neighborCoordsFromLoc(loc):
     return [
         Point(x=loc.x - 1, y=loc.y - 1),
         Point(x=loc.x, y=loc.y - 1),
@@ -253,75 +203,127 @@ def coordsFromLoc(loc):
     ]
 
 
-def paint(loc, size, tests, pipes):
-    # if we've already determined, then skip
-    # if loc.y in tests and loc[0] in tests[loc.y]:
-    #    return (tests[loc.y][loc[0]], nextLoc(loc, size))
+def paint(loc, size, pipes, tests):
+    coords = [loc]
+    paintable = {}
+    hitWall = False
 
-    # if this location is a pipe, move on
-    if pipes[loc.y][loc.x]:
-        if pipes[loc.y][loc.x].valid():
-            return (False, nextLoc(loc, size))
-
-    # not a pipe, cast a ray and see if this is in or out
-    ioo = inOrOut(loc, size, pipes)
-    if ioo:
-        log(ioo, loc)
-    # return (ioo, nextLoc(loc, size))
-
-    # initialize
-    tests[loc.y][loc.x] = ioo
-
-    # flood fill
-    tested = {}
-    tested[loc] = True
-    coords = coordsFromLoc(loc)
-    while len(coords) > 0:
+    while coords:
         coord = coords.pop(0)
 
-        if coord in tested:
-            continue
+        # if out of range, ignore
         if coord.x < 0 or coord.y < 0 or coord.x >= size.x or coord.y >= size.y:
             continue
-        if tests[coord.y].get(coord.x, False):
-            continue
-        if pipes[coord.y][coord.x] and pipes[coord.y][coord.x].valid():
+
+        # if this is a pipe, do nothing and return
+        if pipes[coord.y].get(coord.x, None):
             continue
 
-        tests[coord.y][coord.x] = ioo
-        tested[coord] = True
-        coords += coordsFromLoc(coord)
+        # skip if we've been here
+        if coord in paintable:
+            continue
 
-    # return
-    return (ioo, nextLoc(loc, size))
+        # include this in the space we're seeing
+        paintable[coord] = True
+
+        # wall if we're on the edge
+        hitWall = hitWall or (
+            coord.x == 0
+            or coord.y == 0
+            or coord.x == size.x - 1
+            or coord.y == size.y - 1
+        )
+
+        # get neighbor coords to continue testing
+        coords += neighborCoordsFromLoc(coord)
+
+    # now, fill in paintables with whether we hit wall
+    for coord in paintable:
+        tests[coord.y][coord.x] = not hitWall
 
 
 def part2(inp):
     start, size, pipes = inp
 
-    # start from corner, the logic we're going to use is that if there's an
-    # odd number of pipes in any direction (horizontal or vertical) then we
-    # are inside the loop. outside spaces are in zones that have an even count
-    # of pipes on all sides.
+    # start by inflating the map so that we can properly account for spaces
+    # "between" pipes
+    npipes = {}
+    for y in pipes:
+        npipes[y * 2] = {}
+        npipes[y * 2 + 1] = {}
+        for x in pipes[y]:
+            pipe = pipes[y][x]
+            if pipe is not None:
+                pipe.x *= 2
+                pipe.y *= 2
+                npipes[pipe.y][pipe.x] = pipe
+
+    # embiggen!
+    pipes = npipes
+    size = Point(size.x * 2 - 1, size.y * 2 - 1)
+
+    # fill in pipes
+    for y in range(size.y):
+        for x in range(size.x):
+            if y not in pipes or x not in pipes[y]:
+                continue
+            pipe = pipes[y][x]
+            if pipe is not None:
+                # put in a pipe between us and p1, if not done yet
+                if pipe.p1.x % 2 == 0 and pipe.p1.y % 2 == 0:
+                    p1 = Point(
+                        pipe.x + int((pipe.p1.x - pipe.x) / 2),
+                        pipe.y + int((pipe.p1.y - pipe.y) / 2),
+                    )
+                    pipes[p1.y][p1.x] = Pipe(p1.x, p1.y, pipe, pipe.p1)
+                    if pipe.p1.p1 == pipe:
+                        pipe.p1.p1 = pipes[p1.y][p1.x]
+                    elif pipe.p1.p2 == pipe:
+                        pipe.p1.p2 = pipes[p1.y][p1.x]
+                    else:
+                        raise Exception("fuck3")
+                    pipe.p1 = pipes[p1.y][p1.x]
+
+                # now repeat for our p2 pipe
+                if pipe.p2.x % 2 == 0 and pipe.p2.y % 2 == 0:
+                    p2 = Point(
+                        pipe.x + int((pipe.p2.x - pipe.x) / 2),
+                        pipe.y + int((pipe.p2.y - pipe.y) / 2),
+                    )
+                    pipes[p2.y][p2.x] = Pipe(p2.x, p2.y, pipe, pipe.p1)
+                    if pipe.p2.p1 == pipe:
+                        pipe.p2.p1 = pipes[p2.y][p2.x]
+                    elif pipe.p2.p2 == pipe:
+                        pipe.p2.p2 = pipes[p2.y][p2.x]
+                    else:
+                        raise Exception("fuck3")
+                    pipe.p2 = pipes[p2.y][p2.x]
+
+    # now start BFSing from each point
+    tests = {y: {} for y in range(size.y)}
+    for y in range(size.y):
+        for x in range(size.x):
+            # if this point is already calculated, skip it
+            if tests[y].get(x, None) is not None:
+                continue
+
+            # fill from this point
+            paint(Point(x, y), size, pipes, tests)
+
     rv = 0
-    loc = Point(x=0, y=0)
-    tests = {idx: {} for idx in range(size.y)}
-    while loc is not None:
-        if loc.y not in tests:
-            tests[loc.y] = {}
-        ioo, loc2 = paint(loc, size, tests, pipes)
-        if ioo:
-            rv += 1
-        tests[loc.y][loc.x] = ioo
-        loc = loc2
 
     for y in range(size.y):
+        if y % 2 == 1:
+            continue
         line = ""
         for x in range(size.x):
-            if pipes[y][x] and pipes[y][x].valid:
+            if x % 2 == 1:
+                continue
+            if x in pipes[y] and pipes[y][x] and pipes[y][x].valid:
                 line += "*"
-            elif tests[y][x]:
+            elif tests[y].get(x, False):
                 line += "I"
+                rv += 1
             else:
                 line += "O"
         log(line)
