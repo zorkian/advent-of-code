@@ -26,7 +26,7 @@ def main(p1, p2, test, v):
 
 
 def load_input(test):
-    prefix = "inputs/day" + sys.argv[0].split(".")[0][-1] + "."
+    prefix = "inputs/day" + sys.argv[0].split(".")[0][-2:] + "."
     with open(prefix + ("test" if test else "input")) as f:
         return [l.strip() for l in f.readlines()]
 
