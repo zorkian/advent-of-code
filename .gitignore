@@ -4,3 +4,7 @@ node_modules
 .env
 .vscode
 *.swp
+*.egg-info
+dist/**
+**/__pycache__/**
+*.egg
