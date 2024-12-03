@@ -28,9 +28,7 @@ class Day3(Day):
 
         segments = ''.join(self.input_data).split("do()")
         for segment in segments:
-            if "don't()" in segment:
-                segment = segment.split("don't()")[0]
-            print(segment)
+            segment = segment.split("don't()")[0]
             matches = re.findall(pattern, segment)
             for x, y in matches:
                 total += int(x) * int(y)
