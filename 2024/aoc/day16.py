@@ -86,7 +86,7 @@ class Day16(Day):
                 if path[0] == shortest_path[0]:
                     for p in path[1]:
                         unique_locations.add(p)
-            self.print_maze_path(list(unique_locations))
+            # self.print_maze_path(list(unique_locations))
             # self.print_maze_path(shortest_path[1])  # Print the maze path at the end
             return shortest_path[0] # Return cost and count of unique locations
         return float('inf')  # If no path is found
