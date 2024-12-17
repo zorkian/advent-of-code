@@ -15,7 +15,7 @@ class Operator(Enum):
 
 class Day17(Day):
     def __init__(self, use_test_data=False):
-        self.registers = {'A': 0, 'B': 0, 'C': 0}
+        self.registers = {"A": 0, "B": 0, "C": 0}
         self.program = []
         self.instructions = []
         self.instruction_pointer = 0
@@ -23,10 +23,10 @@ class Day17(Day):
         super().__init__(day_number=17, use_test_data=use_test_data)
 
     def parse_input(self):
-        self.registers['A'] = int(self.input_data[0].split(':')[1].strip())
-        self.registers['B'] = int(self.input_data[1].split(':')[1].strip())
-        self.registers['C'] = int(self.input_data[2].split(':')[1].strip())
-        self.program = list(map(int, self.input_data[4].split(':')[1].split(',')))
+        self.registers["A"] = int(self.input_data[0].split(":")[1].strip())
+        self.registers["B"] = int(self.input_data[1].split(":")[1].strip())
+        self.registers["C"] = int(self.input_data[2].split(":")[1].strip())
+        self.program = list(map(int, self.input_data[4].split(":")[1].split(",")))
 
         for i in range(0, len(self.program), 2):
             operator = Operator(self.program[i])
@@ -37,11 +37,11 @@ class Day17(Day):
         if 0 <= combo <= 3:
             return combo
         elif combo == 4:
-            return self.registers['A']
+            return self.registers["A"]
         elif combo == 5:
-            return self.registers['B']
+            return self.registers["B"]
         elif combo == 6:
-            return self.registers['C']
+            return self.registers["C"]
         elif combo == 7:
             assert False, "Invalid combo operand"
         else:
@@ -49,21 +49,20 @@ class Day17(Day):
 
     def solve_part_one(self):
         self.execute_program()
-        print('Part 1 result: ' + ','.join([str(i) for i in self.output]))
+        print("Part 1 result: " + ",".join([str(i) for i in self.output]))
         return 0
 
     def reset(self, a=0):
         self.output = []
-        self.registers['A'] = a
-        self.registers['B'] = 0
-        self.registers['C'] = 0
+        self.registers["A"] = a
+        self.registers["B"] = 0
+        self.registers["C"] = 0
         self.instruction_pointer = 0
-
 
     def solve_part_two(self):
         # byte offset to increment from, start incrementer, value we're trying
         plen = len(self.program)
-        boff, inc, val = (plen-1)*3, 1, 0
+        boff, inc, val = (plen - 1) * 3, 1, 0
         while True:
             val += inc << boff
 
@@ -77,12 +76,16 @@ class Day17(Day):
 
             if False:
                 bit_string = f"{val:048b}"
-                spaced_bit_string = ' '.join(bit_string[i:i+3] for i in range(0, len(bit_string), 3))
-                print(f"{spaced_bit_string} ...output = {self.output} ({len(self.output)})")
+                spaced_bit_string = " ".join(
+                    bit_string[i : i + 3] for i in range(0, len(bit_string), 3)
+                )
+                print(
+                    f"{spaced_bit_string} ...output = {self.output} ({len(self.output)})"
+                )
 
             miscompare = False
-            for comp in range(((plen*3) - boff) // 3):
-                if self.output[(plen-1)-comp] != self.program[(plen-1)-comp]:
+            for comp in range(((plen * 3) - boff) // 3):
+                if self.output[(plen - 1) - comp] != self.program[(plen - 1) - comp]:
                     miscompare = True
             if miscompare:
                 val -= inc << boff
@@ -93,7 +96,7 @@ class Day17(Day):
             inc = 0
             boff -= 3
 
-        assert("you have failed")
+        assert "you have failed"
 
     def execute_program(self, output_required=None):
         temp_ip = 0
@@ -102,7 +105,10 @@ class Day17(Day):
             method = getattr(self, operator.name)
             method(operand)
             if output_required is not None:
-                if len(self.output) and output_required[0:len(self.output)] != self.output:
+                if (
+                    len(self.output)
+                    and output_required[0 : len(self.output)] != self.output
+                ):
                     return False
                 elif self.output == output_required:
                     return True
@@ -110,29 +116,29 @@ class Day17(Day):
 
     def ADV(self, operand):
         denominator = pow(2, self.get_value_from_operand(operand))
-        self.registers['A'] = int(self.registers['A'] // denominator)
+        self.registers["A"] = int(self.registers["A"] // denominator)
         self.instruction_pointer += 2
         return f"ADV: operand={operand}, new A={self.registers['A']}"
 
     def BXL(self, operand):
-        self.registers['B'] ^= operand
+        self.registers["B"] ^= operand
         self.instruction_pointer += 2
         return f"BXL: operand={operand}, new B={self.registers['B']}"
 
     def BST(self, operand):
-        self.registers['B'] = self.get_value_from_operand(operand) % 8
+        self.registers["B"] = self.get_value_from_operand(operand) % 8
         self.instruction_pointer += 2
         return f"BST: new B={self.registers['B']}"
 
     def JNZ(self, operand):
-        if self.registers['A'] != 0:
+        if self.registers["A"] != 0:
             self.instruction_pointer = operand
         else:
             self.instruction_pointer += 2
         return f"JNZ: A={self.registers['A']}, operand={operand}, new instruction pointer={self.instruction_pointer}"
 
     def BXC(self, operand):
-        self.registers['B'] ^= self.registers['C']
+        self.registers["B"] ^= self.registers["C"]
         self.instruction_pointer += 2
         return f"BXC: new B={self.registers['B']}"
 
@@ -144,12 +150,12 @@ class Day17(Day):
 
     def BDV(self, operand):
         denominator = pow(2, self.get_value_from_operand(operand))
-        self.registers['B'] = int(self.registers['A'] // denominator)
+        self.registers["B"] = int(self.registers["A"] // denominator)
         self.instruction_pointer += 2
         return f"BDV: operand={operand}, new B={self.registers['B']}"
 
     def CDV(self, operand):
         denominator = pow(2, self.get_value_from_operand(operand))
-        self.registers['C'] = int(self.registers['A'] // denominator)
+        self.registers["C"] = int(self.registers["A"] // denominator)
         self.instruction_pointer += 2
         return f"CDV: operand={operand}, new C={self.registers['C']}"
