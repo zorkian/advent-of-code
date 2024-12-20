@@ -101,10 +101,10 @@ class Day20(Day):
             (current_x, current_y), distance = queue.popleft()
 
             if (current_x, current_y) == self.end:
-                #for savings in sorted(timeskips_by_savings.keys()):
-                    #print(
-                    #    f"Timeskips saving {savings}: {timeskips_by_savings[savings]}"
-                    #)
+                # for savings in sorted(timeskips_by_savings.keys()):
+                # print(
+                #    f"Timeskips saving {savings}: {timeskips_by_savings[savings]}"
+                # )
                 return distance, len(timeskips)
 
             # We are at a new square, find all the non-wall coordinates within the timeskip
@@ -123,9 +123,9 @@ class Day20(Day):
                 )
                 if possible_savings < 100:
                     continue
-                #print(
+                # print(
                 #    f"Possible savings: {current_x, current_y} -> {coord} saves {possible_savings}"
-                #)
+                # )
                 timeskips.add((current_x, current_y, coord[0], coord[1]))
                 if possible_savings not in timeskips_by_savings:
                     timeskips_by_savings[possible_savings] = set()
