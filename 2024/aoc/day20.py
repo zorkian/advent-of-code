@@ -21,8 +21,8 @@ class Day20(Day):
                     self.end = (x, y)
                     self.map[(x, y)] = "."
 
-
     def find_shortest_path(self, enable_wall_hack=True, forbidden_walls=None):
+        # not even used anymore :)
         if not self.start or not self.end:
             return -1, None
 
